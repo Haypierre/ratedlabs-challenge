@@ -1,0 +1,3 @@
+[submodule "coding-challenge"]
+	path = coding-challenge
+	url = https://github.com/rated-network/coding-challenge.git

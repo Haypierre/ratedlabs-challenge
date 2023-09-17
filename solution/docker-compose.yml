@@ -1,0 +1,18 @@
+version: "3.1"
+
+services:
+  postgres:
+    # Docker Hub image
+    image: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USER: "ratedlabs"
+      POSTGRES_DB: "ratedlabs"

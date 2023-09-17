@@ -1,0 +1,22 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "Pierre Hay",email = "hay.pierre.pro@gmail.com"},
+]
+dependencies = [
+    "fastapi>=0.103.1",
+    "polars>=0.19.3",
+    "requests>=2.31.0",
+    "pyscopg2>=66.0.2",
+    "psycopg2>=2.9.7",
+    "pandas>=2.1.0",
+    "sqlalchemy>=2.0.20",
+    "pyarrow>=13.0.0",
+    "gunicorn>=21.2.0",
+    "uvicorn>=0.23.2",
+]
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
