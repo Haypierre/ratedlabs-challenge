@@ -1,7 +1,7 @@
-from models import Stats, Transaction
+from src.models import Stats, Transaction
 from fastapi import HTTPException
 
-from db_utils import execute_query
+from src.db_utils import execute_query
 
 
 class TransactionService:

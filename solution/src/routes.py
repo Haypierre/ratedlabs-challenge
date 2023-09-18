@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from models import Stats, Transaction
+from src.models import Stats, Transaction
 
-from transactions import transaction_service
+from src.transactions import transaction_service
 
 router = APIRouter()
 

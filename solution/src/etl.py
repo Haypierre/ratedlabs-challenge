@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Iterator, Callable, Optional
 from pathlib import Path
 import requests
-from db_utils import init, write_dataframe
+from src.db_utils import init, write_dataframe
 from functools import cache
 
 
@@ -30,13 +30,13 @@ def _process_approx_transaction_exec_time(
     return txs
 
 
-def _lazy_read_blocks() -> Iterator[pl.DataFrame]:
+def _lazy_read_blocks(path: str) -> Iterator[pl.DataFrame]:
     """
     Lazy load of the "ethereum_txs.csv" into polars dataframes
     """
-    root_dir = Path("../..")
+    root_dir = Path("..")
     transactions = pl.scan_csv(
-        source=root_dir / "coding-challenge" / "ethereum_txs.csv",
+        source=root_dir.joinpath(path),
         dtypes={
             "hash": str,
             "nonce": pl.Float64,
@@ -69,7 +69,7 @@ def _lazy_read_blocks() -> Iterator[pl.DataFrame]:
 @cache
 def _get_market_data(block_day_date: str) -> float:
     """
-    Retrieve ethereum price for the transaction day from CoinGeck API.
+    Retrieve ethereum price for the transaction day from CoinGecko API.
     Cache the result to avoid getting rate limited with a larger dataset.
     """
     response = requests.get(
@@ -80,7 +80,7 @@ def _get_market_data(block_day_date: str) -> float:
 
 
 def _process_data(
-    blocks: Iterator[pl.DataFrame], extractor: Optional[Callable] = lambda _: []
+    blocks: Iterator[pl.DataFrame], extractor: Optional[Callable] = lambda _: 0
 ) -> Iterator[pl.DataFrame]:
     """
     Transform `blocks`.
@@ -96,7 +96,6 @@ def _process_data(
     :return: the enriched blocks:
     :rtype: Iterator[pl.DataFrame]
     """
-
     for block in blocks:
         transactions_count = block.select(pl.count())[0, 0]
         block_timestamp = block.select("block_timestamp").unique()[0, 0]
@@ -132,9 +131,9 @@ def _load(blocks: Iterator[pl.DataFrame]):
 def launch_etl() -> None:
     init()
     # extract transactions from CSV in polars dataframes
-    blocks = _lazy_read_blocks()
+    blocks = _lazy_read_blocks("coding-challenge/ethereum_txs.csv")
     # apply require transformations
-    # * add approximative transcation execution time
+    # * add approximative transactions execution time
     # * add gas_cost
     # * retrieve from external source the approximate
     # price of ETH at transaction execution time

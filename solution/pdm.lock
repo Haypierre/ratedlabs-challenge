@@ -6,7 +6,7 @@ groups = ["default"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:f115e6b93724aa3e16f138fe7b3166fc07fed0b32f3be50869a83eac5c666ca1"
+content_hash = "sha256:dc13918804d4b5386afaa58ccef2b12f5e6200f1ebb699042e0731fe1e88e96c"
 
 [[package]]
 name = "annotated-types"
@@ -157,6 +157,16 @@ files = [
 ]
 
 [[package]]
+name = "iniconfig"
+version = "2.0.0"
+requires_python = ">=3.7"
+summary = "brain-dead simple config-ini parsing"
+files = [
+    {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
+    {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
+]
+
+[[package]]
 name = "numpy"
 version = "1.25.2"
 requires_python = ">=3.9"
@@ -204,6 +214,16 @@ files = [
     {file = "pandas-2.1.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:70cf866af3ab346a10debba8ea78077cf3a8cd14bd5e4bed3d41555a3280041c"},
     {file = "pandas-2.1.0-cp311-cp311-win_amd64.whl", hash = "sha256:d53c8c1001f6a192ff1de1efe03b31a423d0eee2e9e855e69d004308e046e694"},
     {file = "pandas-2.1.0.tar.gz", hash = "sha256:62c24c7fc59e42b775ce0679cfa7b14a5f9bfb7643cfbe708c960699e05fb918"},
+]
+
+[[package]]
+name = "pluggy"
+version = "1.3.0"
+requires_python = ">=3.8"
+summary = "plugin and hook calling mechanisms for python"
+files = [
+    {file = "pluggy-1.3.0-py3-none-any.whl", hash = "sha256:d89c696a773f8bd377d18e5ecda92b7a3793cbe66c87060a6fb58c7b6e1061f7"},
+    {file = "pluggy-1.3.0.tar.gz", hash = "sha256:cf61ae8f126ac6f7c451172cf30e3e43d3ca77615509771b3a984a0730651e12"},
 ]
 
 [[package]]
@@ -340,6 +360,22 @@ version = "66.0.2"
 summary = "A package to prevent Dependency Confusion attacks against Yandex."
 files = [
     {file = "pyscopg2-66.0.2.tar.gz", hash = "sha256:b987949a25d6f27610e70a6c0a524be3abd4884d21a86d6c74f23fdc690f9508"},
+]
+
+[[package]]
+name = "pytest"
+version = "7.4.2"
+requires_python = ">=3.7"
+summary = "pytest: simple powerful testing with Python"
+dependencies = [
+    "colorama; sys_platform == \"win32\"",
+    "iniconfig",
+    "packaging",
+    "pluggy<2.0,>=0.12",
+]
+files = [
+    {file = "pytest-7.4.2-py3-none-any.whl", hash = "sha256:1d881c6124e08ff0a1bb75ba3ec0bfd8b5354a01c194ddd5a0a870a48d99b002"},
+    {file = "pytest-7.4.2.tar.gz", hash = "sha256:a766259cfab564a2ad52cb1aae1b881a75c3eb7e34ca3779697c23ed47c47069"},
 ]
 
 [[package]]

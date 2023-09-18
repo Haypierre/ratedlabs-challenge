@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from etl import launch_etl
-from routes import router
+from src.etl import launch_etl
+from src.routes import router
 
 
 class App(FastAPI):
