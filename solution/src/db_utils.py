@@ -60,7 +60,8 @@ def init():
             receipts_root VARCHAR(255),
             receipts_status VARCHAR(255),
             receipts_effective_gas_price DOUBLE PRECISION,
-            approximative_execution_timestamp VARCHAR(255)
+            approximative_execution_timestamp VARCHAR(255),
+            gas_cost_in_dollars DOUBLE PRECISION
         )
     """
     execute_query(delete_table)

@@ -1,10 +1,10 @@
 import polars as pl
-import os
 from datetime import datetime, timedelta
-from typing import Iterator, Callable
+from typing import Iterator, Callable, Optional
 from pathlib import Path
 import requests
 from db_utils import init, write_dataframe
+from functools import cache
 
 
 def _process_approx_transaction_exec_time(
@@ -56,19 +56,21 @@ def _lazy_read_blocks() -> Iterator[pl.DataFrame]:
         yield transactions
 
 
-def _get_market_data(block_timestamp: str):
-    coin_api_key = str(os.getenv("COIN_API_KEY"))
-    time_end = datetime.strptime(block_timestamp, "%Y-%m-%d %H:%M:%S.%f UTC")
-    time_start_str = (time_end - timedelta(seconds=12)).strftime("%Y-%m-%dT%H:%M:%S")
-    time_end_str = time_end.strftime("%Y-%m-%dT%H:%M:%S")
-    coin_url = f"https://rest.coinapi.io/v1/exchangerate/ETH/USD/history?period_id=5SEC&time_start={time_start_str}&time_end={time_end_str}"
-    headers = {"X-CoinAPI-Key": coin_api_key}
-    response = requests.get(coin_url, headers=headers)
-    return response
+@cache
+def _get_market_data(block_day_date: str) -> float:
+    """
+    Retrieve ethereum price for the transaction day from CoinGeck API.
+    Cache the result to avoid getting rate limited with a larger dataset.
+    """
+    response = requests.get(
+        url=f"https://api.coingecko.com/api/v3/coins/ethereum/history?date={block_day_date}"
+    )
+    eth_price_in_usd = response.json()["market_data"]["current_price"]["usd"]
+    return float(eth_price_in_usd)
 
 
 def _process_data(
-    blocks: Iterator[pl.DataFrame], extractor: Callable
+    blocks: Iterator[pl.DataFrame], extractor: Optional[Callable] = lambda _: []
 ) -> Iterator[pl.DataFrame]:
     for block in blocks:
         transactions_count = block.select(pl.count())[0, 0]
@@ -82,9 +84,18 @@ def _process_data(
         )
         block = block.with_columns(transaction_exec_times)
         block = block.with_columns(
-            pl.col("gas").mul(pl.col("gas_price")).floordiv(1e9).alias("gas_cost")
+            pl.col("gas").mul(pl.col("gas_price")).truediv(1e9).alias("gas_cost")
         )
-        extractor(block_timestamp)
+        if extractor:
+            block_date = datetime.strptime(block_timestamp, "%Y-%m-%d %H:%M:%S.%f UTC")
+            block_day_date = block_date.strftime("%d-%m-%Y")
+            current_eth_price = extractor(block_day_date)
+            block = block.with_columns(
+                pl.col("gas_cost")
+                .truediv(1e9)
+                .mul(current_eth_price)
+                .alias("gas_cost_in_dollars")
+            )
         yield block
 
 

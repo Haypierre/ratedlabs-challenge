@@ -19,7 +19,7 @@ class TransactionService:
             blockNumber=unique_tx["block_number"],
             executedAt=unique_tx["approximative_execution_timestamp"],
             gasUsed=unique_tx["gas"],
-            gasCostInDollars=42,
+            gasCostInDollars=unique_tx["gas_cost_in_dollars"],
         )
 
     def get_stats(self):
@@ -37,8 +37,8 @@ class TransactionService:
                 totalGasCostInDollars=42,
             )
 
-        except Exception:
-            pass
+        except IndexError:
+            raise HTTPException(status_code=404, detail="No transactions FOUND")
 
 
 transaction_service = TransactionService()
