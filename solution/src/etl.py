@@ -85,13 +85,13 @@ def _process_data(
     """
     Transform `blocks`.
     Apply the following transformations:
-         - calculate approximatve execution time for all transctions (pure operatiom)
-         - calculate the gas cost in Gwei for all transactios (pure operation)
-         - get market data to calculate the gas cost in dollars (impure operation)
+         - calculate approximatve execution time for all transActions (pure operation)
+         - calculate the gas cost in Gwei for all transactions (pure operation)
+         - get market data to calculate the gas cost in dollars (API call: side effects)
 
     :param blocks: the blocks of transactions
     :type blocks: Iterator[pl.DataFrame]
-    :param extractor: Optional function to extract market data from an external source.
+    :param extractor: Optional function to extract market data from an external source
     :type extractor: Optional[Callable]
     :return: the enriched blocks:
     :rtype: Iterator[pl.DataFrame]
@@ -111,7 +111,7 @@ def _process_data(
         block = block.with_columns(
             pl.col("receipts_gas_used")
             .mul(pl.col("receipts_effective_gas_price"))
-            .truediv(1e9)
+            .truediv(1e9)  # Wei to Gwei
             .alias("gas_cost")
         )
         if extractor:
@@ -120,7 +120,7 @@ def _process_data(
             current_eth_price = extractor(block_day_date)
             block = block.with_columns(
                 pl.col("gas_cost")
-                .truediv(1e9)
+                .truediv(1e9)  # Gwei to ETH
                 .mul(current_eth_price)
                 .alias("gas_cost_in_dollars")
             )
@@ -136,7 +136,7 @@ def launch_etl() -> None:
     init()
     # extract transactions from CSV into polars dataframes
     blocks = _lazy_read_blocks("coding-challenge/ethereum_txs.csv")
-    # apply require transformations
+    # apply required transformations
     # * add approximative transactions execution time
     # * add gas_cost
     # * retrieve from external source the approximate

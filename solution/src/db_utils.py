@@ -30,10 +30,11 @@ def execute_query(sql: str):
 
 def init():
     """
-    Launched once when starting the ETL.
-    Make the ETL idempotent.
-    Delete tabled if exists to start from green field.
-    Creatae transactions table with UNIQUE constraint on tx_hash.
+    Launched once when starting the ETL, before running the server.
+
+    To mke the ETL idempotent:
+       - Delete table if exists to start from Greenfield.
+       - Create transactions table with UNIQUE constraint on tx_hash.
     """
     delete_table = "DROP TABLE IF EXISTS transactions"
     create_table_query = """
