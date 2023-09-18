@@ -107,8 +107,12 @@ def _process_data(
             dtype=str,
         )
         block = block.with_columns(transaction_exec_times)
+        # Gas Cost = Gas Price * Gas used by transaction
         block = block.with_columns(
-            pl.col("gas").mul(pl.col("gas_price")).truediv(1e9).alias("gas_cost")
+            pl.col("receipts_gas_used")
+            .mul(pl.col("receipts_effective_gas_price"))
+            .truediv(1e9)
+            .alias("gas_cost")
         )
         if extractor:
             block_date = datetime.strptime(block_timestamp, "%Y-%m-%d %H:%M:%S.%f UTC")
@@ -130,7 +134,7 @@ def _load(blocks: Iterator[pl.DataFrame]):
 
 def launch_etl() -> None:
     init()
-    # extract transactions from CSV in polars dataframes
+    # extract transactions from CSV into polars dataframes
     blocks = _lazy_read_blocks("coding-challenge/ethereum_txs.csv")
     # apply require transformations
     # * add approximative transactions execution time

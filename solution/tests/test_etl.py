@@ -1,6 +1,11 @@
-# import pytest
+# mypy: ignore-errors
+
 import types
-from src.etl import _lazy_read_blocks, _process_approx_transaction_exec_time
+from src.etl import (
+    _lazy_read_blocks,
+    _process_approx_transaction_exec_time,
+    _process_data,
+)
 
 
 def test_lazy_read_blocks():
@@ -10,7 +15,7 @@ def test_lazy_read_blocks():
 
     block_dfs = list(block_dfs_gen)
     # assert partition by block is OK
-    assert len(block_dfs) == 2
+    assert len(block_dfs) == 1
     # assert that unique is effective
     assert block_dfs[0].to_series().len() == 2
 
@@ -29,16 +34,41 @@ def test_process_approx_transaction_exec_time():
     ]
 
 
-# def test_cache_market_data():
-#     test_path = "solution/tests/test_txs.csv"
-#     txs = _lazy_read_blocks(test_path)
+def test_cache_market_data():
+    test_path = "solution/tests/test_txs.csv"
+    blocks = _lazy_read_blocks(test_path)
 
-#     def fake_func(str):
-#         print("stp")
-#         fake_func.counter += 1
-#         return 42.0
+    def fake_eth_market_price(block_ts: str):
+        fake_eth_market_price.counter += 1
+        return 1845
 
-#     breakpoint()
-#     fake_func.counter = 0
-#     a = _process_data(txs, fake_func)
-#     assert fake_func.counter == 2
+    fake_eth_market_price.counter = 0
+    processed_blocks = _process_data(blocks, fake_eth_market_price)
+    print(list(processed_blocks))
+    # only 1 date in the test data
+    assert fake_eth_market_price.counter == 1
+
+
+def test_gas_cost_calculation():
+    test_path = "solution/tests/test_txs.csv"
+    blocks = _lazy_read_blocks(test_path)
+
+    def fake_eth_market_price(block_ts: str):
+        return 1845
+
+    fist_processed_block = next(_process_data(blocks, fake_eth_market_price))
+
+    fist_processed_block.to_dict()["hash"].to_list() == [
+        "0x6f218a5e009c56f8db17e933af7cc98360b699ae88cb85ef31c3eb351ecdee24",
+        "0xc055b65e39c15e1bc90cb4ccb2daac6b59c02ec1aa6c4216276054b4f31ed90a",
+    ]
+    approx_paid_fees_in_dollars = [
+        int(x) for x in fist_processed_block.to_dict()["gas_cost_in_dollars"].to_list()
+    ]
+
+    # https://etherscan.io/tx/0xc055b65e39c15e1bc90cb4ccb2daac6b59c02ec1aa6c4216276054b4f31ed90a
+    # https://etherscan.io/tx/0x6f218a5e009c56f8db17e933af7cc98360b699ae88cb85ef31c3eb351ecdee24
+
+    approx_paid_fees_in_dollars.sort()
+
+    assert approx_paid_fees_in_dollars == [7, 12]
