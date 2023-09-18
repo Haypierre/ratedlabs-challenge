@@ -9,7 +9,6 @@ class TransactionService:
         try:
             txs = execute_query(f"select * from transactions where hash = '{tx_hash}'")
             unique_tx = txs[0]
-            print(f"FOUND {unique_tx}")
         except IndexError:
             raise HTTPException(status_code=404, detail=f"{tx_hash} NOT FOUND")
 

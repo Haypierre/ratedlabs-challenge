@@ -5,7 +5,7 @@ from routes import router
 
 
 class App(FastAPI):
-    def register_routeers(self):
+    def register_routers(self):
         self.include_router(router)
 
 
@@ -15,3 +15,4 @@ def start_application():
 
 
 app = start_application()
+app.register_routers()
