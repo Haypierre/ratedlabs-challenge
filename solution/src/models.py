@@ -9,3 +9,9 @@ class Transaction(pydantic.BaseModel):
     executedAt: str
     gasUsed: int
     gasCostInDollars: float
+
+
+class Stats(pydantic.BaseModel):
+    totalTransactionsInDB: int
+    totalGasUsed: float
+    totalGasCostInDollars: float

@@ -1,4 +1,4 @@
-from models import Transaction
+from models import Stats, Transaction
 from fastapi import HTTPException
 
 from db_utils import execute_query
@@ -21,6 +21,24 @@ class TransactionService:
             gasUsed=unique_tx["gas"],
             gasCostInDollars=42,
         )
+
+    def get_stats(self):
+        try:
+            total_transactions_in_db = execute_query(
+                "select count(*) from transactions"
+            ).pop()
+            total_gas_used = execute_query("select sum(gas) from transactions").pop()
+            # total_gas_cost_in_dollars =
+            # execute_query("select sum(gas_cost) from transactions")
+
+            return Stats(
+                totalTransactionsInDB=total_transactions_in_db["count"],
+                totalGasUsed=total_gas_used["sum"],
+                totalGasCostInDollars=42,
+            )
+
+        except Exception:
+            pass
 
 
 transaction_service = TransactionService()
