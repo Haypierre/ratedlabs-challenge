@@ -10,8 +10,15 @@ from functools import cache
 def _process_approx_transaction_exec_time(
     block_timestamp: str, transactions_count: int, ethereum_average_block_time=12
 ) -> list[str]:
-    approx_transaction_exec_time = ethereum_average_block_time / transactions_count
+    """
+    Helper function to calulate approximative transactions execution time.
+    Will be given as a UDF to polars.
+    """
 
+    # TODO: find a native solution with polars API to achieve the same work
+    # without needing a UDF. UDF can't be optimized and are running way slower.
+
+    approx_transaction_exec_time = ethereum_average_block_time / transactions_count
     upper_limit = datetime.strptime(block_timestamp, "%Y-%m-%d %H:%M:%S.%f %Z")
     txs = [
         (
@@ -24,6 +31,9 @@ def _process_approx_transaction_exec_time(
 
 
 def _lazy_read_blocks() -> Iterator[pl.DataFrame]:
+    """
+    Lazy load of the "ethereum_txs.csv" into polars dataframes
+    """
     root_dir = Path("../..")
     transactions = pl.scan_csv(
         source=root_dir / "coding-challenge" / "ethereum_txs.csv",
@@ -72,6 +82,21 @@ def _get_market_data(block_day_date: str) -> float:
 def _process_data(
     blocks: Iterator[pl.DataFrame], extractor: Optional[Callable] = lambda _: []
 ) -> Iterator[pl.DataFrame]:
+    """
+    Transform `blocks`.
+    Apply the following transformations:
+         - calculate approximatve execution time for all transctions (pure operatiom)
+         - calculate the gas cost in Gwei for all transactios (pure operation)
+         - get market data to calculate the gas cost in dollars (impure operation)
+
+    :param blocks: the blocks of transactions
+    :type blocks: Iterator[pl.DataFrame]
+    :param extractor: Optional function to extract market data from an external source.
+    :type extractor: Optional[Callable]
+    :return: the enriched blocks:
+    :rtype: Iterator[pl.DataFrame]
+    """
+
     for block in blocks:
         transactions_count = block.select(pl.count())[0, 0]
         block_timestamp = block.select("block_timestamp").unique()[0, 0]

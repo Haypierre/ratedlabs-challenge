@@ -28,15 +28,15 @@ class TransactionService:
                 "select count(*) from transactions"
             ).pop()
             total_gas_used = execute_query("select sum(gas) from transactions").pop()
-            # total_gas_cost_in_dollars =
-            # execute_query("select sum(gas_cost) from transactions")
+            total_gas_cost_in_dollars = execute_query(
+                "select sum(gas_cost_in_dollars) from transactions"
+            ).pop()
 
             return Stats(
                 totalTransactionsInDB=total_transactions_in_db["count"],
                 totalGasUsed=total_gas_used["sum"],
-                totalGasCostInDollars=42,
+                totalGasCostInDollars=total_gas_cost_in_dollars["sum"],
             )
-
         except IndexError:
             raise HTTPException(status_code=404, detail="No transactions FOUND")
 
