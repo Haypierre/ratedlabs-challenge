@@ -27,18 +27,23 @@ class TransactionService:
             total_transactions_in_db = execute_query(
                 "select count(*) from transactions"
             ).pop()
-            total_gas_used = execute_query("select sum(gas) from transactions").pop()
-            total_gas_cost_in_dollars = execute_query(
-                "select sum(gas_cost_in_dollars) from transactions"
+            total_gas_used = execute_query(
+                "select sum(receipts_gas_used) from transactions"
             ).pop()
-
+            total_gas_cost_in_dollars = execute_query(
+                "select cast(sum(gas_cost_in_dollars) as int) from transactions"
+            ).pop()
             return Stats(
                 totalTransactionsInDB=total_transactions_in_db["count"],
-                totalGasUsed=total_gas_used["sum"],
+                totalGasUsed=int(total_gas_used["sum"]),
                 totalGasCostInDollars=total_gas_cost_in_dollars["sum"],
             )
         except IndexError:
-            raise HTTPException(status_code=404, detail="No transactions FOUND")
+            return Stats(
+                totalTransactionsInDB=0,
+                totalGasUsed=0,
+                totalGasCostInDollars=0,
+            )
 
 
 transaction_service = TransactionService()

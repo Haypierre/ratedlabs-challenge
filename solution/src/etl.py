@@ -23,7 +23,7 @@ def _process_approx_transaction_exec_time(
     txs = [
         (
             upper_limit - timedelta(seconds=delta * approx_transaction_exec_time)
-        ).strftime(("%Y-%m-%d %H:%M:%S.%f") + " UTC")
+        ).strftime(("%b-%d-%Y %I:%M:%S %p %z") + "+UTC")
         for delta in range(1, transactions_count + 1)
     ]
     assert len(txs) == transactions_count
@@ -52,8 +52,8 @@ def _lazy_read_blocks(path: str) -> Iterator[pl.DataFrame]:
             "max_fee_per_gas": pl.Float64,
             "max_priority_fee_per_gas": pl.Float64,
             "transaction_type": str,
-            "receipts_cumulative_gas_used": pl.Float64,
-            "receipts_gas_used": pl.Float64,
+            "receipts_cumulative_gas_used": pl.UInt64,
+            "receipts_gas_used": pl.UInt64,
             "receipts_contract_address": str,
             "receipts_root": str,
             "receipts_status": str,
@@ -122,6 +122,7 @@ def _process_data(
                 pl.col("gas_cost")
                 .truediv(1e9)  # Gwei to ETH
                 .mul(current_eth_price)
+                .round(2)
                 .alias("gas_cost_in_dollars")
             )
         yield block

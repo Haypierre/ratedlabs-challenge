@@ -13,5 +13,5 @@ class Transaction(pydantic.BaseModel):
 
 class Stats(pydantic.BaseModel):
     totalTransactionsInDB: int
-    totalGasUsed: float
-    totalGasCostInDollars: float
+    totalGasUsed: int
+    totalGasCostInDollars: int

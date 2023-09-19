@@ -27,10 +27,12 @@ def test_process_approx_transaction_exec_time():
     # if entire block length is 12 seconds
     # and there is only 3 transactions in the block
     # then each transaction takes approx 4 seconds - to decrement from the block ts.
+
+    res.sort()
     assert res == [
-        "2023-08-01 07:04:55.000000 UTC",
-        "2023-08-01 07:04:51.000000 UTC",
-        "2023-08-01 07:04:47.000000 UTC",
+        "Aug-01-2023 07:04:47 AM +UTC",
+        "Aug-01-2023 07:04:51 AM +UTC",
+        "Aug-01-2023 07:04:55 AM +UTC",
     ]
 
 

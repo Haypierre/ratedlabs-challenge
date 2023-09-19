@@ -14,7 +14,7 @@ pdm test
 pdm dev
 ```
 
-# Visit API documentation
+# Visit the API documentation
 - `http://0.0.0.0:80/docs`
 
 # Usage
